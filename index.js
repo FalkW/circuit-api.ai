@@ -101,16 +101,30 @@ var UbiqBot = function(){
     };
 
     //*********************************************************************
-    //* Mention -- helper
+    //* Retrieve Data from Mentions
     //*********************************************************************
     this.processEvent = function (evt) {
         if ( ! evt.item || ! evt.item.text || ! evt.item.text.content )
            return ;
         if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+client.loggedOnUser.displayName) ) {
             logger.info('[APP]:MENTION DETECTED initializing Answer');
+            logger.info('[APP]:RETRIEVED CONV ID'+evt.item.convId);
+            self.postAnswer("Thanks, have my reply!",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
         }
      }
 
+    //*********************************************************************
+    //* Post Reply
+    //*********************************************************************
+     this.postAnswer = function (text, parentid, conversationID) {
+        logger.info('[APP]: postAnswer', text, parentid, conversationID);
+        var message = {
+            content: text,
+            parentId: parentid
+            };
+            return client.addTextItem(conversationID, message);
+        }
+    
 }
 
 
