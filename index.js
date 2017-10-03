@@ -82,14 +82,13 @@ var UbiqBot = function(){
         });
         client.addEventListener('itemAdded', function (evt) {
             self.logEvent(evt);
-        });
+            self.processEvent(evt)});
         client.addEventListener('itemUpdated', function (evt) {
             self.logEvent(evt);
-
-        });
+            self.processEvent(evt)});
     };
-    
-   
+
+           
     //*********************************************************************
     //* logEvent -- helper
     //*********************************************************************
@@ -99,13 +98,17 @@ var UbiqBot = function(){
     };
 
     //*********************************************************************
-    //* sentByMe -- helper
+    //* Mention -- helper
     //*********************************************************************
-    this.sentByMe = function sentByMe (item){
-        return (client.loggedOnUser.userId === item.creatorId);
-    };
+    this.processEvent = function (evt) {
+        if ( ! evt.item || ! evt.item.text || ! evt.item.text.content )
+           return ;
+        if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+config.name) ) {
+            logger.info('[APP]:MENTION DETECTED');
+        }
+     }
 
-};
+}
 
 
 //*********************************************************************
