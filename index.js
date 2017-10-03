@@ -8,6 +8,9 @@ console.log(config);
 // logger
 var bunyan = require('bunyan');
 
+// node utils
+var util = require('util');
+
 // SDK logger
 var sdkLogger = bunyan.createLogger({
     name: 'sdk',
