@@ -9,7 +9,8 @@
   "dependencies": {
     "circuit-sdk": "^1.2.1801",
     "bunyan": "^1.8.5",
-    "apiai": "^4.0.3"
+    "apiai": "^4.0.3",
+    "remove-markdown":"^0.2.2"
   },
   "repository": {
     "type": "git",

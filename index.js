@@ -8,6 +8,9 @@ console.log(config);
 // logger
 var bunyan = require('bunyan');
 
+//remove Markdown
+const removeMd = require('remove-markdown');
+
 // node utils
 var util = require('util');
 
@@ -120,7 +123,7 @@ var UbiqBot = function(){
             self.postAnswer("Thanks, have my reply for you request",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
             //Additionally send Data API AI
             //self.analyzeData(evt.item.text.content, evt.item.parentItemId || evt.item.itemId);
-            self.analyzeData(evt.item.text.content, evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            self.analyzeData(removeMd(evt.item.text.content), evt.item.parentItemId || evt.item.itemId, evt.item.convId);
         }
      }
 
@@ -152,13 +155,18 @@ var UbiqBot = function(){
     
         request.on('response', function(response) {
         logger.info('[API AI] RESPONSE: '+ JSON.stringify(response));
+        logger.info('[API AI] RESPONSE Object.keys(response): '+ Object.keys(response)); 
+        logger.info('[API AI] RESPONSEObject.keys(response.result): '+ (Object.keys(response.result)));        
+        logger.info('[API AI] RESPONSE response.result,action: '+ Object.getPrototypeOf(response.result.action));
+        logger.info('[API AI] RESPONSE response.result,action: '+ response.result.action);      
         
-        self.postAnswer(JSON.stringify(response), sesID, conID);
+        
+        self.postAnswer('ACTION: '+ response.result.action + '\nMAIL-ADDRESSES: ' + response.result.parameters.email, sesID, conID);
 
         });
     
         request.on('error', function(error) {
-        logger.info('[API AI] ERROR: '+ error);
+        logger.info('[API AI] ERROR to log: '+ error);
         });
     
         request.end();
