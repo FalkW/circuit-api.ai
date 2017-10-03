@@ -106,8 +106,8 @@ var UbiqBot = function(){
     this.processEvent = function (evt) {
         if ( ! evt.item || ! evt.item.text || ! evt.item.text.content )
            return ;
-        if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+config.name) ) {
-            logger.info('[APP]:MENTION DETECTED');
+        if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+client.loggedOnUser.displayName) ) {
+            logger.info('[APP]:MENTION DETECTED initializing Answer');
         }
      }
 

@@ -4,6 +4,9 @@ config.json
 #Visual Studio Code
 .vscode/
 
+#temporary file
+*tmp*
+
 # Logs
 logs
 *.log
