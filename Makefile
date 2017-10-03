@@ -1,4 +1,4 @@
-.PHONY: build run pull push test
+.PHONY: build run pull push
 
 build:
 	docker build --no-cache -t ubiqbot .
