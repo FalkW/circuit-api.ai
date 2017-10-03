@@ -1,0 +1,29 @@
+{
+  "name": "ubiqbot",
+  "version": "1.0.0",
+  "description": "Just another helpful bot",
+  "main": "index.js",
+  "scripts": {
+   "start": "node index.js"
+  },
+  "dependencies": {
+    "circuit-sdk": "^1.2.1801",
+    "bunyan": "^1.8.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FalkW/ubiqbot.git"
+  },
+  "keywords": [
+    "Unify",
+    "Circuit",
+    "Bot"
+  ],
+  "author": "Falk Weber",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/FalkW/ubiqbot/issues"
+  },
+  "homepage": "https://github.com/FalkW/ubiqubot#readme"
+  }
+
