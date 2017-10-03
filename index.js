@@ -32,6 +32,12 @@ var Circuit = require('circuit-sdk');
 logger.info('[APP]: Circuit set bunyan logger');
 Circuit.setLogger(sdkLogger);
 
+// API.AI SDK
+logger.info('[APP]: get API.AI instance');
+var apiai = require('apiai');
+
+
+
 //*********************************************************************
 //* UbiqBot
 //*********************************************************************
@@ -41,7 +47,7 @@ var UbiqBot = function(){
     var client = null;
 
     //*********************************************************************
-    //* logonBot
+    //* Circuit - logonBot
     //*********************************************************************
     this.logon = function logon(){
         logger.info('[APP]: logon');
@@ -69,7 +75,7 @@ var UbiqBot = function(){
     
     
     //*********************************************************************
-    //* addEventListeners
+    //* Circuit - addEventListeners
     //*********************************************************************
     this.addEventListeners = function addEventListeners(client){
         logger.info('[APP]: addEventListeners');
@@ -93,7 +99,7 @@ var UbiqBot = function(){
 
            
     //*********************************************************************
-    //* logEvent -- helper
+    //* Circuit - logEvent -- helper
     //*********************************************************************
     this.logEvent = function logEvent(evt){
         logger.info('[APP]:', evt.type, 'event received');
@@ -101,30 +107,62 @@ var UbiqBot = function(){
     };
 
     //*********************************************************************
-    //* Retrieve Data from Mentions
+    //* Circuit - Retrieve Data from Mentions
     //*********************************************************************
     this.processEvent = function (evt) {
         if ( ! evt.item || ! evt.item.text || ! evt.item.text.content )
            return ;
         if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+client.loggedOnUser.displayName) ) {
             logger.info('[APP]:MENTION DETECTED initializing Answer');
-            logger.info('[APP]:RETRIEVED CONV ID'+evt.item.convId);
-            self.postAnswer("Thanks, have my reply!",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            logger.info('[APP]:RETRIEVED CONV ID :'+evt.item.convId);
+            logger.info('[APP]:RETRIEVED TEXT :'+evt.item.text.content);
+            logger.info('[APP]:RETRIEVED ItemID :'+evt.item.itemId);                     
+            self.postAnswer("Thanks, have my reply for you request",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            //Additionally send Data API AI
+            //self.analyzeData(evt.item.text.content, evt.item.parentItemId || evt.item.itemId);
+            self.analyzeData(evt.item.text.content, evt.item.parentItemId || evt.item.itemId, evt.item.convId);
         }
      }
 
     //*********************************************************************
-    //* Post Reply
+    //* Circuit - Post Reply
     //*********************************************************************
-     this.postAnswer = function (text, parentid, conversationID) {
+    this.postAnswer = function (text, parentid, conversationID) {
         logger.info('[APP]: postAnswer', text, parentid, conversationID);
         var message = {
             content: text,
             parentId: parentid
             };
-            return client.addTextItem(conversationID, message);
-        }
+        return client.addTextItem(conversationID, message);
+    }
+
+    //*********************************************************************
+    //* Send Data to API.AI and return result - API.AI
+    //*********************************************************************
+    this.analyzeData = function (content, sesID, conID) {
+        var app = apiai(config.apiai_token);
     
+        logger.info('[API AI] REQUEST CONTENT --> '+ content + ' SessionID --> '+ sesID);
+
+        var options = {
+            sessionId: sesID
+        };
+        
+        var request = app.textRequest(content, options);
+    
+        request.on('response', function(response) {
+        logger.info('[API AI] RESPONSE: '+ JSON.stringify(response));
+        
+        self.postAnswer(JSON.stringify(response), sesID, conID);
+
+        });
+    
+        request.on('error', function(error) {
+        logger.info('[API AI] ERROR: '+ error);
+        });
+    
+        request.end();
+    }
 }
 
 
