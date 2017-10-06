@@ -1,3 +1,3 @@
-# UbiqBot
+# Circuit-API.ai
 
-A simple Bot talking to Circuit and API AI
+A simple application providing an adapter between Unify Circuit - www.circuit.com - Google API.ai - www.api.ai
