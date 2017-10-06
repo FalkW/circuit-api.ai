@@ -42,7 +42,7 @@ var apiai = require('apiai');
 
 
 //*********************************************************************
-//* UbiqBot
+//* Circuit-API.ai Adapter
 //*********************************************************************
 var UbiqBot = function(){
 
@@ -115,15 +115,34 @@ var UbiqBot = function(){
     this.processEvent = function (evt) {
         if ( ! evt.item || ! evt.item.text || ! evt.item.text.content )
            return ;
+        //Check if message is directed directly to the Bot in order to be able to use him also in group conversations
         if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+client.loggedOnUser.displayName) ) {
             logger.info('[APP]:MENTION DETECTED initializing Answer');
             logger.info('[APP]:RETRIEVED CONV ID :'+evt.item.convId);
+            //Following line used during troubleshooting only remove for production
             logger.info('[APP]:RETRIEVED TEXT :'+evt.item.text.content);
             logger.info('[APP]:RETRIEVED ItemID :'+evt.item.itemId);                     
-            self.postAnswer("Thanks, have my reply for you request",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
-            //Additionally send Data API AI
-            //self.analyzeData(evt.item.text.content, evt.item.parentItemId || evt.item.itemId);
-            self.analyzeData(removeMd(evt.item.text.content), evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            //Following line used during troubleshooting only remove for production
+            //self.postAnswer("Thanks, have my reply for you request",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+
+            //Clean up request
+            var removestring = "@"+client.loggedOnUser.displayName
+            var userquestion = removeMd(evt.item.text.content)
+            userquestion = userquestion.replace(RegExp(removestring, 'g'),'');
+            //Following line used during troubleshooting only remove for production
+            logger.info('[APP]:CLEANUP: '+userquestion);                     
+            
+
+            //Verify that the request has less than 256 characters which is the max value for API.ai
+            if (userquestion.length <= 256) {
+                logger.info('[APP]: REQUEST LENGTH PASSED: ' + userquestion.length + ' CHARACTERS');                     
+                //Send Data to API AI after removing clutter aka markdown
+                self.aicrunching(userquestion, evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            } else {
+                logger.info('[APP]: REQUEST LENGTH FAILED: ' + userquestion.length + ' CHARACTERS');                     
+                self.postAnswer('Unfortunately I do not understand questions having more than 265 characters and your request has ' + userquestion.length, evt.item.parentItemId || evt.item.itemId, evt.item.convId);                
+            }
+            
         }
      }
 
@@ -142,7 +161,7 @@ var UbiqBot = function(){
     //*********************************************************************
     //* Send Data to API.AI and return result - API.AI
     //*********************************************************************
-    this.analyzeData = function (content, sesID, conID) {
+    this.aicrunching = function (content, sesID, conID) {
         var app = apiai(config.apiai_token);
     
         logger.info('[API AI] REQUEST CONTENT --> '+ content + ' SessionID --> '+ sesID);
@@ -156,12 +175,18 @@ var UbiqBot = function(){
         request.on('response', function(response) {
         logger.info('[API AI] RESPONSE: '+ JSON.stringify(response));
         logger.info('[API AI] RESPONSE Object.keys(response): '+ Object.keys(response)); 
-        logger.info('[API AI] RESPONSEObject.keys(response.result): '+ (Object.keys(response.result)));        
-        logger.info('[API AI] RESPONSE response.result,action: '+ Object.getPrototypeOf(response.result.action));
-        logger.info('[API AI] RESPONSE response.result,action: '+ response.result.action);      
+        logger.info('[API AI] RESPONSE Object.keys(response.result): '+ (Object.keys(response.result)));            
         
+        //Check if Answer has a suitable quality
+        if (response.result.score > 0) {
+            //Score > 0 post result to Circuit
+            self.postAnswer(response.result.fulfillment.speech, sesID, conID);
+        } else {
+            //Score = 0 post excuse to Circuit
+            self.postAnswer('Unfortunately I have no answer for you :( Please do not fire me!', sesID, conID);
+        }
+
         
-        self.postAnswer('ACTION: '+ response.result.action + '\nMAIL-ADDRESSES: ' + response.result.parameters.email, sesID, conID);
 
         });
     
@@ -181,7 +206,7 @@ function run() {
 
     var ubiqBot = new UbiqBot();
 
-     ubiqBot.logon()
+    ubiqBot.logon()
         .catch (function(e){
             logger.error('[APP]:', e);
         });
