@@ -44,7 +44,7 @@ var apiai = require('apiai');
 //*********************************************************************
 //* Circuit-API.ai Adapter
 //*********************************************************************
-var UbiqBot = function(){
+var CircuitapiaoBot = function(){
 
     var self = this;
     var client = null;
@@ -117,29 +117,25 @@ var UbiqBot = function(){
            return ;
         //Check if message is directed directly to the Bot in order to be able to use him also in group conversations
         if ( evt.item.text.content.includes('span class="mention"') && evt.item.text.content.includes("@"+client.loggedOnUser.displayName) ) {
-            logger.info('[APP]:MENTION DETECTED initializing Answer');
-            logger.info('[APP]:RETRIEVED CONV ID :'+evt.item.convId);
-            //Following line used during troubleshooting only remove for production
-            logger.info('[APP]:RETRIEVED TEXT :'+evt.item.text.content);
-            logger.info('[APP]:RETRIEVED ItemID :'+evt.item.itemId);                     
-            //Following line used during troubleshooting only remove for production
-            //self.postAnswer("Thanks, have my reply for you request",evt.item.parentItemId || evt.item.itemId, evt.item.convId);
+            logger.info('[APP]:MENTION DETECTED');
+            logger.debug('[APP]:RETRIEVED CONV ID :'+evt.item.convId);
+            logger.debug('[APP]:RETRIEVED TEXT :'+evt.item.text.content);
+            logger.debug('[APP]:RETRIEVED ItemID :'+evt.item.itemId);                     
 
             //Clean up request
             var removestring = "@"+client.loggedOnUser.displayName
             var userquestion = removeMd(evt.item.text.content)
             userquestion = userquestion.replace(RegExp(removestring, 'g'),'');
-            //Following line used during troubleshooting only remove for production
-            logger.info('[APP]:CLEANUP: '+userquestion);                     
+            logger.debug('[APP]:CLEANUP RESULT: '+userquestion);                     
             
 
             //Verify that the request has less than 256 characters which is the max value for API.ai
             if (userquestion.length <= 256) {
-                logger.info('[APP]: REQUEST LENGTH PASSED: ' + userquestion.length + ' CHARACTERS');                     
+                logger.info('[APP]: REQUEST LENGTH CHECK PASSED: ' + userquestion.length + ' CHARACTERS');                     
                 //Send Data to API AI after removing clutter aka markdown
                 self.aicrunching(userquestion, evt.item.parentItemId || evt.item.itemId, evt.item.convId);
             } else {
-                logger.info('[APP]: REQUEST LENGTH FAILED: ' + userquestion.length + ' CHARACTERS');                     
+                logger.info('[APP]: ERROR REQUEST LENGTH CHECK FAILED: ' + userquestion.length + ' CHARACTERS');                     
                 self.postAnswer('Unfortunately I do not understand questions having more than 265 characters and your request has ' + userquestion.length, evt.item.parentItemId || evt.item.itemId, evt.item.convId);                
             }
             
@@ -150,7 +146,7 @@ var UbiqBot = function(){
     //* Circuit - Post Reply
     //*********************************************************************
     this.postAnswer = function (text, parentid, conversationID) {
-        logger.info('[APP]: postAnswer', text, parentid, conversationID);
+        logger.debug('[APP]: postAnswer', text, parentid, conversationID);
         var message = {
             content: text,
             parentId: parentid
@@ -164,7 +160,7 @@ var UbiqBot = function(){
     this.aicrunching = function (content, sesID, conID) {
         var app = apiai(config.apiai_token);
     
-        logger.info('[API AI] REQUEST CONTENT --> '+ content + ' SessionID --> '+ sesID);
+        logger.debug('[API AI] REQUEST CONTENT --> '+ content + ' SessionID --> '+ sesID);
 
         var options = {
             sessionId: sesID
@@ -173,9 +169,9 @@ var UbiqBot = function(){
         var request = app.textRequest(content, options);
     
         request.on('response', function(response) {
-        logger.info('[API AI] RESPONSE: '+ JSON.stringify(response));
-        logger.info('[API AI] RESPONSE Object.keys(response): '+ Object.keys(response)); 
-        logger.info('[API AI] RESPONSE Object.keys(response.result): '+ (Object.keys(response.result)));            
+        logger.debug('[API AI] RESPONSE: '+ JSON.stringify(response));
+        logger.debug('[API AI] RESPONSE Object.keys(response): '+ Object.keys(response)); 
+        logger.debug('[API AI] RESPONSE Object.keys(response.result): '+ (Object.keys(response.result)));            
         
         //Check if Answer has a suitable quality
         if (response.result.score > 0) {
@@ -204,9 +200,9 @@ var UbiqBot = function(){
 //*********************************************************************
 function run() {
 
-    var ubiqBot = new UbiqBot();
+    var circuitapiaoBot = new CircuitapiaoBot();
 
-    ubiqBot.logon()
+    circuitapiaoBot.logon()
         .catch (function(e){
             logger.error('[APP]:', e);
         });
