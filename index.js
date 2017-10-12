@@ -179,7 +179,7 @@ var CircuitapiaoBot = function(){
             self.postAnswer(response.result.fulfillment.speech, sesID, conID);
         } else {
             //Score = 0 post excuse to Circuit
-            self.postAnswer('Unfortunately I have no answer for you :( Please do not fire me!', sesID, conID);
+            self.postAnswer('Unfortunately I have no answer for you.', sesID, conID);
         }
 
         
