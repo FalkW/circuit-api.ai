@@ -175,6 +175,23 @@ var CircuitDialogFlowAdapter = function () {
         };
 
         var request = app.textRequest(content, options);
+<<<<<<< HEAD
+=======
+    
+        request.on('response', function(response) {
+        logger.debug('[API AI] RESPONSE: '+ JSON.stringify(response));
+        logger.debug('[API AI] RESPONSE Object.keys(response): '+ Object.keys(response)); 
+        logger.debug('[API AI] RESPONSE Object.keys(response.result): '+ (Object.keys(response.result)));            
+        
+        //Check if Answer has a suitable quality
+        if (response.result.score > 0) {
+            //Score > 0 post result to Circuit
+            self.postAnswer(response.result.fulfillment.speech, sesID, conID);
+        } else {
+            //Score = 0 post excuse to Circuit
+            self.postAnswer('Unfortunately I have no answer for you.', sesID, conID);
+        }
+>>>>>>> 6094b426cd07ee44147f932d4019a6d186a4bcdb
 
         request.on('response', function (response) {
             //Check if Answer has a suitable quality
