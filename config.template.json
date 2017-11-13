@@ -1,0 +1,7 @@
+ {
+   "client_id"          : "client_id",
+   "client_secret"      : "client_secret",
+   "domain"             : "eu.yourcircuit.com",
+   "sdkLogLevel"        : "info",
+   "apiai_token"        : "apiai_token"
+  }
