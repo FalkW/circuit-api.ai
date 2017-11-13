@@ -4,13 +4,14 @@
   "description": "Just another helpful bot",
   "main": "index.js",
   "scripts": {
-   "start": "node index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "circuit-sdk": "^1.2.1801",
-    "bunyan": "^1.8.5",
     "apiai": "^4.0.3",
-    "remove-markdown":"^0.2.2"
+    "bunyan": "^1.8.5",
+    "circuit-sdk": "^1.2.1801",
+    "eslint": "^4.9.0",
+    "remove-markdown": "^0.2.2"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,4 @@
     "url": "https://github.com/FalkW/ubiqbot/issues"
   },
   "homepage": "https://github.com/FalkW/ubiqubot#readme"
-  }
-
+}
